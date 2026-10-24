@@ -267,3 +267,17 @@ def ask_shop(q: Question, user: str = Depends(auth.get_current_user)):
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=503, detail="The assistant is unavailable right now. Please try again in a minute.")
+
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+DIST = os.path.join(ROOT, "frontend", "dist")
+if os.path.isdir(DIST):
+    app.mount("/assets", StaticFiles(directory=os.path.join(DIST, "assets")), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def serve_frontend(path: str):
+        file = os.path.realpath(os.path.join(DIST, path))
+        if path and file.startswith(os.path.realpath(DIST)) and os.path.isfile(file):
+            return FileResponse(file)
+        return FileResponse(os.path.join(DIST, "index.html"))

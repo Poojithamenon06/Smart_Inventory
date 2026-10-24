@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? "" : "http://127.0.0.1:8000");
 export const getToken = () => localStorage.getItem("token");
 export const setToken = (t) => (t ? localStorage.setItem("token", t) : localStorage.removeItem("token"));
 
