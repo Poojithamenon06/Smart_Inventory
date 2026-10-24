@@ -279,6 +279,6 @@ All endpoints except `/health`, `/auth/register`, and `/auth/login` need a `Bear
 
 **Poojitha Menon**
 
-[GitHub](https://github.com/<your-username>) · [LinkedIn](https://www.linkedin.com/in/<your-profile>)
+[GitHub](https://github.com/Poojithamenon06)
 
 Built as an end-to-end machine learning and full-stack project.
