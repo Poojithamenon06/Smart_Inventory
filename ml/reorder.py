@@ -85,6 +85,25 @@ def build_recommendations():
         })
     return pd.DataFrame(rows)
 
+def _state():
+    conn = sqlite3.connect(DB)
+    s = conn.execute(
+        "SELECT (SELECT MAX(id) FROM sales), (SELECT COUNT(*) FROM products), "
+        "(SELECT COUNT(*) FROM stock_batches), (SELECT COALESCE(SUM(quantity), 0) FROM stock_batches)"
+    ).fetchone()
+    conn.close()
+    return s
+
+
+_cache = {"state": None, "df": None}
+
+
+def get_recommendations():
+    s = _state()
+    if _cache["state"] != s:
+        _cache["df"] = build_recommendations()
+        _cache["state"] = s
+    return _cache["df"].copy()
 
 if __name__ == "__main__":
     rec = build_recommendations()
