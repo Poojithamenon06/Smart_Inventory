@@ -3,7 +3,7 @@ import math
 import sqlite3
 import numpy as np
 import pandas as pd
-from forecast import load_history, forecast_product
+from forecast import load_history, forecast_many
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -50,11 +50,12 @@ def build_recommendations():
     df["current_stock"] = df["current_stock"].fillna(0)
 
     history, last_date = load_history()
+    fc_all = forecast_many(history, last_date, int(df["lead_time_days"].max()) + REVIEW_DAYS)
     rows = []
     for _, r in df.iterrows():
         hist = history[r["stock_code"]]
         L = int(r["lead_time_days"])
-        fc = forecast_product(hist, last_date, horizon=L + REVIEW_DAYS)["forecast"]
+        fc = pd.Series(fc_all[r["stock_code"]][: L + REVIEW_DAYS])
 
         demand_lt = fc.iloc[:L].sum()
         demand_review = fc.iloc[L:].sum()

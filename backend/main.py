@@ -112,7 +112,7 @@ def daily(days: int = 7, user: str = Depends(auth.get_current_user)):
 def reorder_recommendations(
     only_needed: bool = True, user: str = Depends(auth.get_current_user)
 ):
-    rec = reorder.build_recommendations()
+    rec = reorder.get_recommendations()
     if only_needed:
         rec = rec[rec["needs_order"]]
     rec = rec.copy()

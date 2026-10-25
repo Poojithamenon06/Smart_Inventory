@@ -79,7 +79,36 @@ def forecast_product(history, last_date, horizon=7):
         rows.append((d.date(), pred))
     return pd.DataFrame(rows, columns=["date", "forecast"])
 
-
+def forecast_many(history, last_date, horizon):
+    """Forecast `horizon` open days for every product at once (one model call per day)."""
+    days = next_open_days(last_date, horizon)
+    h = {c: list(v) for c, v in history.items()}
+    out = {c: [] for c in h}
+    model_codes = [c for c in h if len(h[c]) >= MIN_HISTORY]
+    for c in h:
+        if c not in model_codes:  # too little history: plain average
+            level = float(np.mean(h[c])) if h[c] else 0.0
+            out[c] = [level] * horizon
+    if not model_codes:
+        return out
+    for d in days:
+        rows, scales = [], []
+        for c in model_codes:
+            s = h[c]
+            scale = np.mean(s[-28:]) + 1
+            scales.append(scale)
+            rows.append({
+                "lag_1": s[-1] / scale, "lag_2": s[-2] / scale,
+                "lag_7": s[-7] / scale, "lag_14": s[-14] / scale,
+                "roll_mean_7": np.mean(s[-7:]) / scale,
+                "roll_std_7": np.std(s[-7:], ddof=1) / scale,
+                "log_scale": np.log1p(scale), "dayofweek": d.dayofweek,
+            })
+        preds = np.clip(MODEL.predict(pd.DataFrame(rows)[FEATURES]), 0, None) * np.array(scales)
+        for c, p in zip(model_codes, preds):
+            h[c].append(float(p))
+            out[c].append(float(p))
+    return out
 if __name__ == "__main__":
     history, last_date = load_history()
     code = "85123A"  # WHITE HANGING HEART T-LIGHT HOLDER
