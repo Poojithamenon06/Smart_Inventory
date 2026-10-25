@@ -2,6 +2,7 @@
 
 **An intelligent inventory and business assistant for small retail shops, built with machine learning and natural language processing.**
 
+🌐 **Live demo:** https://smart-inventory-8lkj.onrender.com .
 ---
 
 ## 📌 Table of contents
